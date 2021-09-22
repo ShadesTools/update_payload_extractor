@@ -54,7 +54,7 @@ def data_for_op(op,out_file,old_file):
         out_file.write(data)
     elif op.type == op.SOURCE_COPY:
         if not args.diff:
-            print ("SOURCE_COPY supported only for differential OTA")
+            print ("-> SOURCE_COPY supported only for differential OTA")
             sys.exit(-2)
         out_file.seek(op.dst_extents[0].start_block*block_size)
         for ext in op.src_extents:
@@ -63,7 +63,7 @@ def data_for_op(op,out_file,old_file):
             out_file.write(data)
     elif op.type == op.SOURCE_BSDIFF:
         if not args.diff:
-            print ("SOURCE_BSDIFF supported only for differential OTA")
+            print ("-> SOURCE_BSDIFF supported only for differential OTA")
             sys.exit(-3)
         out_file.seek(op.dst_extents[0].start_block*block_size)
         tmp_buff = io.BytesIO()
@@ -88,14 +88,12 @@ def data_for_op(op,out_file,old_file):
             out_file.seek(ext.start_block*block_size)
             out_file.write(b'\x00' * ext.num_blocks*block_size)
     else:
-        print ("Unsupported type = %d" % op.type)
+        print ("-> Unsupported type = %d" % op.type)
         sys.exit(-1)
 
     return data
 
 def dump_part(part):
-    sys.stdout.write("Processing %s partition" % part.partition_name)
-    sys.stdout.flush()
 
     out_file = open('%s/%s.img' % (args.out, part.partition_name), 'wb')
     h = hashlib.sha256()
@@ -107,10 +105,6 @@ def dump_part(part):
 
     for op in part.operations:
         data = data_for_op(op,out_file,old_file)
-        sys.stdout.write(".")
-        sys.stdout.flush()
-
-    print("Done")
 
 
 parser = argparse.ArgumentParser(description='OTA payload dumper')
@@ -162,5 +156,5 @@ else:
         if partition:
             dump_part(partition[0])
         else:
-            sys.stderr.write("Partition %s not found in payload!\n" % image)
+            sys.stderr.write("-> Partition %s not found in payload!\n" % image)
 
